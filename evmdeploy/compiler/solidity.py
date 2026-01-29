@@ -2,7 +2,6 @@ from pathlib import Path
 from hashlib import sha256
 from typing import Dict, Optional
 
-import json
 from solcx import compile_standard, install_solc, set_solc_version
 
 from evmdeploy.compiler.linker import link_bytecode
