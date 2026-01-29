@@ -7,6 +7,10 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
 
+[project.scripts]
+evmdeploy = "evmdeploy.cli.main:main"
+
+
 dependencies = [
   "web3>=7.14.0",
   "py-solc-x==2.0.5",
