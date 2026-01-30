@@ -1,10 +1,12 @@
 from typing import Any, Dict, List, Optional, Union
 from eth_account.datastructures import SignedTransaction
 from eth_account.types import PrivateKeyType
+from web3 import Web3
 
-from evmdeploy.artifacts.model import ContractArtifact
+from evmdeploy.artifacts.model import ContractArtifact, DeploymentResult
 from evmdeploy.crypto.signer import sign_transaction
 from evmdeploy.encoding.constructor import encode_constructor_args
+from evmdeploy.deployer.deployer import Deployer
 
 
 class Contract:
@@ -110,3 +112,45 @@ class Contract:
         )
 
         return sign_transaction(tx, private_key, chain_id=chain_id)
+
+    def deploy(
+        self,
+        w3: Web3,
+        private_key: PrivateKeyType,
+        constructor_args: Optional[List[Any]] = None,
+        constructor_kwargs: Optional[Dict[str, Any]] = None,
+        gas: Optional[int] = None,
+        value: int = 0,
+        wait: bool = True,
+    ) -> DeploymentResult:
+        """
+        Deploys the contract to the network.
+        Returns a DeploymentResult containing the tx hash and optionally the receipt/address.
+        """
+        deployer = Deployer(w3, private_key)
+        
+        # Prepare transaction
+        tx = self.prepare_deployment_transaction(
+            deployer_address=deployer.address,
+            nonce=deployer.get_nonce(),
+            gas=gas or 0, # Deployer will estimate if 0
+            value=value,
+            constructor_args=constructor_args,
+            constructor_kwargs=constructor_kwargs,
+        )
+        
+        # Remove gas if 0 so Deployer estimates it
+        if tx.get("gas") == 0:
+            del tx["gas"]
+
+        tx_hash = deployer.send_transaction(tx)
+        
+        if not wait:
+            return DeploymentResult(tx_hash=tx_hash)
+
+        receipt = deployer.wait_for_receipt(tx_hash)
+        return DeploymentResult(
+            tx_hash=tx_hash,
+            contract_address=receipt.get("contractAddress"),
+            receipt=receipt
+        )
