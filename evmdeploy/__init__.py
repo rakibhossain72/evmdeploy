@@ -5,6 +5,7 @@ from evmdeploy.contract import Contract
 from evmdeploy.deployer.deployer import Deployer
 from evmdeploy.network.evm import NetworkConfig, get_network
 from evmdeploy.artifacts.model import DeploymentResult
+from evmdeploy.artifacts.storage import ArtifactStorage
 
 __all__ = [
     "compile_solidity",
@@ -15,4 +16,5 @@ __all__ = [
     "NetworkConfig",
     "get_network",
     "DeploymentResult",
+    "ArtifactStorage",
 ]

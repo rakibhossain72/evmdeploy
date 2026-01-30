@@ -1,4 +1,4 @@
-from evmdeploy import compile_solidity, Contract
+from evmdeploy import compile_solidity, Contract, ArtifactStorage
 from web3 import Web3
 
 
@@ -6,10 +6,12 @@ def main():
     # 1. Improved compile_solidity with optimizer settings
     artifacts = compile_solidity("contracts/Vault.sol", optimizer=True, runs=500)
 
-    vault_artifact = artifacts["Vault"]
+    # 2. Store artifacts and create Contract object
+    vault = Contract(artifacts["Vault"])
+    vault.save()
+    print(f"Artifact for {vault.name} saved.")
 
-    # 2. Use the new combined Contract object
-    vault = Contract(vault_artifact)
+    # 3. Use the new combined Contract object
     print(f"Contract: {vault.name}")
 
     # 3. Encode constructor args through the Contract object

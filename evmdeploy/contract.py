@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from eth_account.datastructures import SignedTransaction
 from eth_account.types import PrivateKeyType
@@ -7,6 +8,7 @@ from evmdeploy.artifacts.model import ContractArtifact, DeploymentResult
 from evmdeploy.crypto.signer import sign_transaction
 from evmdeploy.encoding.constructor import encode_constructor_args
 from evmdeploy.deployer.deployer import Deployer
+from evmdeploy.artifacts.storage import ArtifactStorage
 
 
 class Contract:
@@ -20,6 +22,22 @@ class Contract:
         self.name = artifact.name
         self.abi = artifact.abi
         self.bytecode = artifact.bytecode
+
+    @classmethod
+    def from_storage(cls, name: str, base_path: Union[str, Path] = "artifacts") -> "Contract":
+        """
+        Loads a contract from the artifact storage.
+        """
+        storage = ArtifactStorage(base_path)
+        artifact = storage.load_artifact(name)
+        return cls(artifact)
+
+    def save(self, base_path: Union[str, Path] = "artifacts") -> Path:
+        """
+        Saves the contract's artifact to the artifact storage.
+        """
+        storage = ArtifactStorage(base_path)
+        return storage.save_artifact(self.artifact)
 
     @property
     def hex_bytecode(self) -> str:
