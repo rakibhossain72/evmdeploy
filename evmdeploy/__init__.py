@@ -1,4 +1,4 @@
-from evmdeploy.compiler.solidity import compile_solidity
+from evmdeploy.compiler.solidity import compile_solidity, SolidityCompiler
 from evmdeploy.crypto.signer import sign_transaction
 from evmdeploy.encoding.constructor import encode_constructor_args
 from evmdeploy.contract import Contract
@@ -9,6 +9,7 @@ from evmdeploy.artifacts.storage import ArtifactStorage
 
 __all__ = [
     "compile_solidity",
+    "SolidityCompiler",
     "sign_transaction",
     "encode_constructor_args",
     "Contract",

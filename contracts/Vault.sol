@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.9;
 
+import {SafeMath} from "@lib/SafeMath.sol";
+
 contract Vault {
     address public owner;
     constructor(address _owner) {

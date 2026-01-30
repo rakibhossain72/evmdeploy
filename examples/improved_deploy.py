@@ -1,15 +1,20 @@
-from evmdeploy import compile_solidity, Contract, ArtifactStorage
+from evmdeploy import SolidityCompiler, Contract
 from web3 import Web3
 
 
 def main():
-    # 1. Improved compile_solidity with optimizer settings
-    artifacts = compile_solidity("contracts/Vault.sol", optimizer=True, runs=500)
+    # 1. Initialize Compiler with custom config
+    compiler = SolidityCompiler(
+        solc_version="0.8.23", remappings={ "@lib": "contracts/lib" }, optimizer=True, runs=500
+    )
 
-    # 2. Store artifacts and create Contract object
+    # 2. Compile with just the contract path
+    artifacts = compiler.compile("contracts/Vault.sol")
+
+    # 3. Store artifacts and create Contract object
     vault = Contract(artifacts["Vault"])
-    vault.save()
-    print(f"Artifact for {vault.name} saved.")
+    # vault.save()
+    # print(f"Artifact for {vault.name} saved.")
 
     # 3. Use the new combined Contract object
     print(f"Contract: {vault.name}")
@@ -36,8 +41,6 @@ def main():
     print(f"Deployment Hash: {result.tx_hash}")
     print(f"Contract Address: {result.contract_address}")
     # print(f"Full Receipt: {result.receipt}")
-
-    
 
 
 if __name__ == "__main__":

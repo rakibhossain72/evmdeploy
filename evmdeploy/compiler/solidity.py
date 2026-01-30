@@ -109,3 +109,36 @@ def compile_solidity(
         raise CompilationError("No deployable contracts found in file")
 
     return artifacts
+
+
+class SolidityCompiler:
+    """
+    Compiler object that holds configuration and compiles Solidity files.
+    """
+
+    def __init__(
+        self,
+        solc_version: str = "0.8.23",
+        remappings: Optional[Dict[str, str]] = None,
+        libraries: Optional[Dict[str, str]] = None,
+        optimizer: bool = True,
+        runs: int = 200,
+    ):
+        self.solc_version = solc_version
+        self.remappings = remappings
+        self.libraries = libraries
+        self.optimizer = optimizer
+        self.runs = runs
+
+    def compile(self, path: str) -> Dict[str, ContractArtifact]:
+        """
+        Compile a Solidity file using the stored configuration.
+        """
+        return compile_solidity(
+            path=path,
+            solc_version=self.solc_version,
+            remappings=self.remappings,
+            libraries=self.libraries,
+            optimizer=self.optimizer,
+            runs=self.runs,
+        )
