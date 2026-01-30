@@ -1,11 +1,17 @@
 from evmdeploy import SolidityCompiler, Contract
 from web3 import Web3
+from dotenv import load_dotenv
 
 
 def main():
+    # Load environment variables from .env file
+    load_dotenv()
+
     # 1. Initialize Compiler with custom config
     compiler = SolidityCompiler(
-        solc_version="0.8.23", remappings={ "@lib": "contracts/lib" }, optimizer=True, runs=500
+        solc_version="0.8.23",
+        optimizer=True,
+        runs=500,
     )
 
     # 2. Compile with just the contract path
@@ -13,8 +19,10 @@ def main():
 
     # 3. Store artifacts and create Contract object
     vault = Contract(artifacts["Vault"])
-    # vault.save()
-    # print(f"Artifact for {vault.name} saved.")
+
+
+    vault.save(base_path="artifacts_output")
+    print(f"Artifact for {vault.name} saved.")
 
     # 3. Use the new combined Contract object
     print(f"Contract: {vault.name}")

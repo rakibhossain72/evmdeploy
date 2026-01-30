@@ -32,7 +32,7 @@ class Contract:
         artifact = storage.load_artifact(name)
         return cls(artifact)
 
-    def save(self, base_path: Union[str, Path] = "artifacts") -> Path:
+    def save(self, base_path: Union[str, Path] = "artifacts_output") -> Path:
         """
         Saves the contract's artifact to the artifact storage.
         """
