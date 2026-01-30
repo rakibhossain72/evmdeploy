@@ -3,38 +3,45 @@ from eth_account.signers.local import LocalAccount
 from eth_account.types import PrivateKeyType
 from eth_account.datastructures import SignedTransaction
 from web3 import Web3
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 def sign_transaction(
     transaction: Dict[str, Any],
     private_key: PrivateKeyType,
+    chain_id: Optional[int] = None,
 ) -> SignedTransaction:
     """
-    Signs an Ethereum transaction (e.g. contract deployment or regular transfer)
-    with the given private key.
+    Signs an Ethereum transaction with the given private key.
 
     Args:
         transaction: Unsigned transaction dictionary.
-                     Must contain at least: 'to', 'value', 'gas', 'gasPrice'/'maxFeePerGas' etc.
-                     For contract deployment: 'to' can be None or '0x0', 'data' contains bytecode + constructor args.
         private_key: Private key (bytes, hex str, or int)
+        chain_id: Optional chain ID to override or set in the transaction.
 
     Returns:
-        Signed transaction dictionary ready for w3.eth.send_raw_transaction()
-        Contains: 'rawTransaction', 'hash', 'r', 's', 'v' etc.
-
-    Raises:
-        ValueError: If transaction dict is missing required fields or malformed
-        TypeError: If private_key cannot be converted to a valid signer
+        SignedTransaction object.
     """
+    if chain_id is not None:
+        transaction = {**transaction, "chainId": chain_id}
+
+    # Basic validation
+    required = {"gas", "nonce"}
+    if "maxFeePerGas" in transaction or "maxPriorityFeePerGas" in transaction:
+        # EIP-1559
+        if "chainId" not in transaction:
+            raise ValueError("chainId is required for EIP-1559 transactions")
+    elif "gasPrice" not in transaction:
+        required.add("gasPrice")
+
+    missing = required - set(transaction.keys())
+    if missing:
+        raise ValueError(f"Transaction missing required fields: {missing}")
+
     # 1. Create account signer from private key
     account: LocalAccount = Account.from_key(private_key)
 
     # 2. Sign the transaction
-    #    eth_account handles EIP-1559 vs legacy automatically based on what's in the dict
     signed_tx = account.sign_transaction(transaction)
 
-    # 3. Return the full signed transaction dict
-    #    Most common thing you want next: signed_tx.rawTransaction (bytes)
     return signed_tx

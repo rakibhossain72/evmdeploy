@@ -3,7 +3,10 @@
 pragma solidity ^0.8.9;
 
 contract Vault {
-    constructor() {}
+    address public owner;
+    constructor(address _owner) {
+        owner = _owner;
+    }
 
     function deposit() external {
         

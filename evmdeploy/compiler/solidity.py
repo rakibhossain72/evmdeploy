@@ -14,6 +14,8 @@ def compile_solidity(
     solc_version: str = "0.8.23",
     remappings: Optional[Dict[str, str]] = None,
     libraries: Optional[Dict[str, str]] = None,
+    optimizer: bool = True,
+    runs: int = 200,
 ) -> Dict[str, ContractArtifact]:
     """
     Compile Solidity file(s) using py-solc-x and return ContractArtifact dict.
@@ -23,6 +25,8 @@ def compile_solidity(
         solc_version: Solidity compiler version to use.
         remappings: dict of import remappings, e.g., {"@openzeppelin/": "node_modules/@openzeppelin/"}
         libraries: optional dict of {library_name: deployed_address} for linking
+        optimizer: Whether to enable Solidity optimizer (default: True)
+        runs: Optimizer runs (default: 200)
 
     Returns:
         Dict of ContractArtifact objects, keyed by contract name.
@@ -55,6 +59,7 @@ def compile_solidity(
                 "language": "Solidity",
                 "sources": sources,
                 "settings": {
+                    "optimizer": {"enabled": optimizer, "runs": runs},
                     "outputSelection": {
                         "*": {
                             "*": [
@@ -72,7 +77,9 @@ def compile_solidity(
             allow_paths=".",  # required for relative imports
         )
     except Exception as e:
-        raise CompilationError(f"Compilation failed: {e}")
+        raise CompilationError(
+            f"Compilation failed: {e}", source_path=path, compiler_output=str(e)
+        )
 
     source_hash = sha256(source.encode()).hexdigest()
     artifacts = {}
