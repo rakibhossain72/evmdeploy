@@ -7,3 +7,4 @@ arms_cache/
 openzeppelin-contracts/
 artifacts_output/
 dist/
+evmdeploy.egg-info/
